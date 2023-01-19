@@ -1,0 +1,13 @@
+.link {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: "Poppins", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.85em;
+    letter-spacing: 0.25em;
+    transition: all 0.3s;
+  }
+  
+  .link:hover {
+    transform: scale(1.1);
+  }
+  
