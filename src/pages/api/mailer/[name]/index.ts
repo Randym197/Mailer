@@ -81,11 +81,17 @@ const handler: NextApiHandler = async (req, res) => {
     });
   }
 
-  const origins = mailer.originsMailer.map(({ origin }) => origin);
+  const whitelist = mailer.originsMailer.map(({ origin }) => origin);
 
   await NextCors(req, res, {
     methods: ["POST"],
-    origin: origins,
+    origin: (origin: string, callback: (error: null | Error, result?: boolean) => void) => {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
