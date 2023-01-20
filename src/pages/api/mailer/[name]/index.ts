@@ -98,6 +98,7 @@ const handler: NextApiHandler = async (req, res) => {
   const transporter = createTransport(transport);
 
   const body = req.body as TDataMail;
+  body.from = body.from || mailer.smtpName;
 
   const result = await transporter.sendMail(body);
 
