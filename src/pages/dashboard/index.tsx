@@ -1,15 +1,15 @@
-import { DashboardView } from '../../views/dashboard/Dashboard'
-import { DashboardLayout } from '../../views/dashboard/Layout';
+import { DashboardIndexLayout } from '../../views/dashboard/index/_layout';
+import { DashboardIndexView } from '../../views/dashboard/index/_view';
 import type { TCustomPage } from '../_app';
 
-const DashboardPage: TCustomPage = () => {
+const DashboardIndexPage: TCustomPage = () => {
   return (
     <>
-      <DashboardView />
+      <DashboardIndexView />
     </>
   )
 }
 
-DashboardPage.Layout = DashboardLayout
+DashboardIndexPage.Layout = DashboardIndexLayout
 
-export default DashboardPage;
+export default DashboardIndexPage;

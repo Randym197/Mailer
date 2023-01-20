@@ -6,6 +6,7 @@ import { z } from "zod";
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
+  MAILER_JWT_SECRET: z.string(),
   DATABASE_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET:
@@ -29,6 +30,7 @@ export const serverSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof serverSchema>]: z.infer<typeof serverSchema>[k] | undefined }}
  */
 export const serverEnv = {
+  MAILER_JWT_SECRET: process.env.MAILER_JWT_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,

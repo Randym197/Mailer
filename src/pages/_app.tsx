@@ -1,15 +1,15 @@
-import { FC, useState } from "react";
-import { type AppType } from "next/app";
-import { type Session } from "next-auth";
+import { useState } from "react";
 import { SessionProvider } from "next-auth/react";
 
 import { api } from "../utils/api";
-import { AppLayout } from "../views/app/Layout";
+import { AppLayout } from "../views/_app";
 import { MantineProvider, ColorSchemeProvider } from "@mantine/core";
 
-import type { ColorScheme } from "@mantine/core";
+import type { FC, ReactNode } from "react";
 import type { NextComponentType, NextPageContext } from "next";
-import type { ReactNode } from "react";
+import type {AppType } from "next/app";
+import type {Session } from "next-auth";
+import type { ColorScheme } from "@mantine/core";
 
 export type TLayout = FC<{
   children: ReactNode;

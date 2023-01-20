@@ -16,10 +16,11 @@ import {
 } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons";
 import Link from "next/link";
+import { api } from "../../../../utils/api";
 
 import type { ReactNode } from "react";
-import type { TLayout } from "../../../pages/_app";
-import { api } from "../../../utils/api";
+import type { TLayout } from "../../../../pages/_app";
+import { ModalCreateMailer } from "./ModalCreateMailer";
 
 export const DashboardLayout: TLayout = ({
   children,
@@ -34,6 +35,8 @@ export const DashboardLayout: TLayout = ({
   const [opened, setOpened] = useState(false);
 
   const { data: mailers } = api.mailer.getAll.useQuery();
+
+  const [openedModal, setOpenedModal] = useState(false);
 
   return (
     <AppShell
@@ -55,7 +58,7 @@ export const DashboardLayout: TLayout = ({
           width={{ sm: 200 }}
         >
           <Navbar.Section my={"sm"}>
-            <NavLink href="/dashboard" label={"Account"} component={Link} />
+            <NavLink href="/dashboard/account" label={"Account"} component={Link} />
           </Navbar.Section>
 
           <Divider></Divider>
@@ -64,7 +67,7 @@ export const DashboardLayout: TLayout = ({
             {mailers?.map(({ name, id }) => (
               <NavLink
                 key={id}
-                href={`/dashboard/mailer/${name}`}
+                href={`/dashboard/mailer/${name}/data`}
                 label={name}
                 component={Link}
               />
@@ -74,7 +77,7 @@ export const DashboardLayout: TLayout = ({
           <Divider></Divider>
 
           <Navbar.Section>
-            <NavLink href="/dashboard" label={"Support"} component={Link} />
+            <NavLink href="/dashboard/support" label={"Support"} component={Link} />
           </Navbar.Section>
         </Navbar>
       }
@@ -96,7 +99,7 @@ export const DashboardLayout: TLayout = ({
             <Group w="100%" position="apart">
               <Link href="/dashboard">Dashboard</Link>
               <Group>
-                <Button>Crear</Button>
+                <Button onClick={() => setOpenedModal(true)}>Crear</Button>
                 <ActionIcon
                   variant="outline"
                   color={dark ? "yellow" : "blue"}
@@ -112,6 +115,7 @@ export const DashboardLayout: TLayout = ({
       }
     >
       {children}
+      { openedModal && <ModalCreateMailer opened={openedModal} setOpened={setOpenedModal} /> }
     </AppShell>
   );
 };

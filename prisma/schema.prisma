@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-    provider          = "postgresql"
-    url               = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model Example {
@@ -16,9 +16,9 @@ model Example {
     updatedAt DateTime @updatedAt
 }
 
-model DomainMailer {
-    id      String @id @default(uuid())
-    address String
+model OriginMailer {
+    id     String @id @default(uuid())
+    origin String
 
     mailerId String
     mailer   Mailer @relation(fields: [mailerId], references: [id], onDelete: Cascade)
@@ -30,6 +30,7 @@ model Mailer {
     activate  Boolean
     connected Boolean
     smtpHost  String
+    smtpPort  Int
     smtpUser  String
     smtpPass  String
     smtpName  String
@@ -38,7 +39,7 @@ model Mailer {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    domainsMailer DomainMailer[]
+    originsMailer OriginMailer[]
 }
 
 // Necessary for Next auth

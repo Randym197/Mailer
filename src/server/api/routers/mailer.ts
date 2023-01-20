@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { signData } from "../../../utils/tokenMailer";
+import type { TDataToken } from "../../../utils/tokenMailer";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -7,23 +9,57 @@ export const mailerRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        activate: z.boolean(),
         smtpHost: z.string(),
+        smtpPort: z.number(),
         smtpUser: z.string(),
         smtpPass: z.string(),
         smtpName: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
+      const userId: string = ctx.session.user.id;
       const data = {
         ...input,
         userId,
+        activate: true,
         apiKey: "",
         connected: false,
       };
       const mailer = await ctx.prisma.mailer.create({ data });
-      return mailer;
+      const mailerId = mailer.id;
+      const dataToken: TDataToken = {
+        userId,
+        mailerId,
+        now: Date.now(),
+      };
+      const apiKey = signData(dataToken);
+      
+      await ctx.prisma.mailer.update({
+        where: {
+          id: mailerId,
+        },
+        data: {
+          apiKey,
+        },
+      });
+
+      await ctx.prisma.originMailer.create({
+        data: {
+          mailerId,
+          origin: "*",
+        },
+      });
+
+      const mailerResult = await ctx.prisma.mailer.findFirst({
+        where: {
+          id: mailerId,
+        },
+        include: {
+          originsMailer: true,
+        },
+      });
+
+      return mailerResult;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
@@ -37,6 +73,9 @@ export const mailerRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       const mailer = await ctx.prisma.mailer.findFirst({
         where: { userId, name },
+        include: {
+          originsMailer: true,
+        },
       });
       return mailer;
     }),

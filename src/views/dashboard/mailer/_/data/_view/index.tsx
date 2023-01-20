@@ -1,19 +1,14 @@
 import {
   Button,
   Container,
-  Group,
-  Input,
   Stack,
-  Switch,
-  Text,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import type { Mailer } from "@prisma/client";
 import { useState } from "react";
 
-export const MailerView = (props: Mailer) => {
+export const DashboardMailer_DataView = (props: Mailer) => {
   const [editable, setEditable] = useState(false);
   const form = useForm({
     initialValues: props,
@@ -28,17 +23,6 @@ export const MailerView = (props: Mailer) => {
       <Container>
         <form onSubmit={form.onSubmit(onSubmit)}>
           <Stack>
-            <Group>
-              <Title>{props.name}</Title>
-              <Button onClick={() => setEditable(!editable)}>
-                {editable ? "Guardar" : "Editar"}
-              </Button>
-            </Group>
-
-            <Group>
-              <Text>ApiKey:</Text>
-              <Text>{props.apiKey}</Text>
-            </Group>
             <TextInput
               label="NAME"
               readOnly={!editable}
@@ -64,6 +48,10 @@ export const MailerView = (props: Mailer) => {
               readOnly={!editable}
               {...form.getInputProps("smtpName")}
             />
+            <Button onClick={() => setEditable(!editable)}>
+              {editable ? "Guardar" : "Editar"}
+            </Button>
+
           </Stack>
         </form>
       </Container>

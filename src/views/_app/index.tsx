@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Header } from "./Header";
 import { AppShell, useMantineTheme } from "@mantine/core";
 import { Footer } from "./Footer";
-import type { TLayout } from "../../../pages/_app";
+import type { TLayout } from "../../pages/_app";
 
 export const AppLayout: TLayout = ({ children }: { children: ReactNode }) => {
   const theme = useMantineTheme();

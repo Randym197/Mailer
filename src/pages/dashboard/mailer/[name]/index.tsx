@@ -1,24 +1,15 @@
-import { useRouter } from "next/router";
-import { api } from "../../../../utils/api";
-import { DashboardLayout } from "../../../../views/dashboard/Layout";
-import { MailerView } from "../../../../views/dashboard/Mailer";
+import { DashboardMailer_IndexLayout } from "../../../../views/dashboard/mailer/_/index/_layout";
+import { DashboardMailer_IndexView } from "../../../../views/dashboard/mailer/_/index/_view";
 import type { TCustomPage } from "../../../_app";
 
-const MailerPage: TCustomPage = () => {
-  const {
-    query: { name },
-  } = useRouter();
-  const { data: dataMailer } = api.mailer.getMailer.useQuery({
-    name: name as string,
-  });
-  console.log(dataMailer);
+const DashboardMailer_IndexPage: TCustomPage = () => {
   return (
     <>
-      { dataMailer && <MailerView {...dataMailer} /> }
+      <DashboardMailer_IndexView />
     </>
   );
 };
 
-MailerPage.Layout = DashboardLayout;
+DashboardMailer_IndexPage.Layout = DashboardMailer_IndexLayout;
 
-export default MailerPage;
+export default DashboardMailer_IndexPage;
