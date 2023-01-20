@@ -47,21 +47,26 @@ type TOriginEditableProps = OriginMailer & { refetch: () => Promise<unknown> };
 
 const OriginEditable = ({ refetch, ...props }: TOriginEditableProps) => {
   const [originData, setOriginData] = useState(props);
+  const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const editOrigin = api.mailer.editOrigin.useMutation();
   const deleteOrigin = api.mailer.deleteOrigin.useMutation();
 
   const save = async () => {
+    setLoading(true)
     await editOrigin.mutateAsync(originData);
     await refetch();
+    setLoading(false);
     setEditing(false);
   };
 
   const remove = async () => {
+    setLoading(true)
     await deleteOrigin.mutateAsync({ id: originData.id });
-    setEditing(false);
     await refetch();
+    setEditing(false);
+    setLoading(false);
   };
 
   return (
@@ -78,6 +83,7 @@ const OriginEditable = ({ refetch, ...props }: TOriginEditableProps) => {
           <ActionIcon
             variant="filled"
             color="green"
+            disabled={loading}
             onClick={() => void save()}
           >
             <IconCheck size={16} />
@@ -86,6 +92,7 @@ const OriginEditable = ({ refetch, ...props }: TOriginEditableProps) => {
           <ActionIcon
             variant="filled"
             color="red"
+            disabled={loading}
             onClick={() => void remove()}
           >
             <IconTrash size={16} />

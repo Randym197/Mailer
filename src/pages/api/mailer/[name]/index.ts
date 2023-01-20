@@ -7,8 +7,6 @@ import type { VerifyCallback, JwtPayload } from "jsonwebtoken";
 import { env } from "../../../../env/server.mjs";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
-
 type TDataMail = {
   from: string; // Fred Foo 👻" <foo@example.com>', // sender address
   to: string; // "bar@example.com, baz@example.com", // list of receivers
@@ -65,6 +63,9 @@ const handler: NextApiHandler = async (req, res) => {
 
   const name = req.query.name as string;
 
+  const prisma = new PrismaClient();
+  await prisma.$connect();
+
   const mailer = await prisma?.mailer.findFirst({
     where: {
       userId,
@@ -81,19 +82,32 @@ const handler: NextApiHandler = async (req, res) => {
     });
   }
 
-  const whitelist = mailer.originsMailer.map(({ origin }) => origin);
+  const whitelist = mailer.originsMailer
+    .map(({ origin }) => origin)
+    .map((o) => o.trim());
 
-  await NextCors(req, res, {
-    methods: ["POST"],
-    origin: (origin: string, callback: (error: null | Error, result?: boolean) => void) => {
-      if (whitelist.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  });
+  try {
+    await NextCors(req, res, {
+      methods: ["POST"],
+      origin: (
+        origin: string,
+        callback: (error: null | Error, result?: boolean) => void
+      ) => {
+        const result = whitelist.indexOf(origin);
+        const allowAll = whitelist.indexOf("*");
+        if (result !== -1 || allowAll !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    return res
+      .status(403)
+      .json(typeof error === "string" ? JSON.parse(error) : error);
+  }
 
   const transport: SMTPTransport.Options = {
     host: mailer.smtpHost,
@@ -110,6 +124,8 @@ const handler: NextApiHandler = async (req, res) => {
   body.from = body.from || mailer.smtpName;
 
   const result = await transporter.sendMail(body);
+
+  await prisma.$disconnect();
 
   return res.json(result);
 };
