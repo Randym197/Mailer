@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Box,
   Button,
   CloseButton,
   Container,
@@ -69,7 +70,6 @@ const OriginEditable = ({ refetch, ...props }: TOriginEditableProps) => {
         value={originData.origin}
         readOnly={!editing}
         onChange={(e) => {
-          console.log(e.target);
           setOriginData({ ...originData, origin: e.target.value });
         }}
       />
@@ -150,13 +150,15 @@ export const DashboardMailer_SecurityView = () => {
         </Stack>
 
         <Text weight={"bold"}>Terminate: </Text>
-        <Button
-          color="red"
-          variant="filled"
-          onClick={() => void deleteMailer()}
-        >
-          Eliminar Mailer
-        </Button>
+        <Box>
+          <Button
+            color="red"
+            variant="filled"
+            onClick={() => void deleteMailer()}
+          >
+            Eliminar Mailer
+          </Button>
+        </Box>
       </SimpleGrid>
     </Container>
   ) : null;

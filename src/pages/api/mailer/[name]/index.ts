@@ -5,6 +5,9 @@ import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import { verify } from "jsonwebtoken";
 import type { VerifyCallback, JwtPayload } from "jsonwebtoken";
 import { env } from "../../../../env/server.mjs";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 
 type TDataMail = {
   from: string; // Fred Foo 👻" <foo@example.com>', // sender address

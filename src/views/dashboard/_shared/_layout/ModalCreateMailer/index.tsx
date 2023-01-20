@@ -1,12 +1,14 @@
 import { Button, Modal, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import type { Mailer } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
+import { useRouter } from "next/router";
+import { Dispatch, SetStateAction, useState } from "react";
 import { api } from "../../../../../utils/api";
 
 export type TModalCreateMailerProps = {
   opened: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
+  refetch: () => Promise<unknown>;
 };
 
 type TPayloadCreateMailer = Omit<
@@ -17,7 +19,10 @@ type TPayloadCreateMailer = Omit<
 export const ModalCreateMailer = ({
   opened,
   setOpened,
+  refetch,
 }: TModalCreateMailerProps) => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const form = useForm({
     initialValues: {
       name: "",
@@ -31,10 +36,13 @@ export const ModalCreateMailer = ({
 
   const createMutation = api.mailer.create.useMutation();
 
-  const onSubmit = (props: TPayloadCreateMailer) => {
-    console.log(props);
-    const result = createMutation.mutate(props);
-    console.log(result);
+  const onSubmit = async (props: TPayloadCreateMailer) => {
+    setLoading(true);
+    await createMutation.mutateAsync(props);
+    await refetch();
+    await router.push("/dashboard/mailer/" + props.name + "/data");
+    setLoading(false);
+    setOpened(false);
   };
 
   return (
@@ -43,7 +51,7 @@ export const ModalCreateMailer = ({
       onClose={() => setOpened(false)}
       title="Create Mailer"
     >
-      <form onSubmit={form.onSubmit(onSubmit)}>
+      <form onSubmit={form.onSubmit((data) => void onSubmit(data))}>
         <Stack>
           <TextInput label="NAME" {...form.getInputProps("name")} />
           <TextInput label="SMTP_HOST" {...form.getInputProps("smtpHost")} />
@@ -51,7 +59,9 @@ export const ModalCreateMailer = ({
           <TextInput label="SMTP_PASS" {...form.getInputProps("smtpPass")} />
           <NumberInput label="SMTP_PORT" {...form.getInputProps("smtpPort")} />
           <TextInput label="SMTP_NAME" {...form.getInputProps("smtpName")} />
-          <Button type="submit">Crear</Button>
+          <Button type="submit" disabled={loading}>
+            Create Mailer
+          </Button>
         </Stack>
       </form>
     </Modal>

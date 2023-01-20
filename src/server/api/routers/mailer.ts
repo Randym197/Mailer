@@ -155,7 +155,6 @@ export const mailerRouter = createTRPCRouter({
         },
         data: input,
       });
-      console.log(originUpdated, "originUpdated");
       return originUpdated;
     }),
 });

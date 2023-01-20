@@ -36,7 +36,7 @@ export const DashboardLayout: TLayout = ({
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
 
-  const { data: mailers } = api.mailer.getAll.useQuery();
+  const { data: mailers, refetch } = api.mailer.getAll.useQuery();
 
   const [openedModal, setOpenedModal] = useState(false);
 
@@ -125,7 +125,7 @@ export const DashboardLayout: TLayout = ({
                 Dashboard
               </Link>
               <Group>
-                <Button onClick={() => setOpenedModal(true)}>Crear</Button>
+                <Button onClick={() => setOpenedModal(true)}>Create</Button>
                 <ActionIcon
                   variant="outline"
                   color={dark ? "yellow" : "blue"}
@@ -142,7 +142,7 @@ export const DashboardLayout: TLayout = ({
     >
       {children}
       {openedModal && (
-        <ModalCreateMailer opened={openedModal} setOpened={setOpenedModal} />
+        <ModalCreateMailer opened={openedModal} setOpened={setOpenedModal} refetch={refetch} />
       )}
     </AppShell>
   );

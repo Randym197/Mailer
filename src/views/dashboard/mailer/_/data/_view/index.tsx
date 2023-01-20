@@ -1,27 +1,39 @@
 import {
   Button,
   Container,
+  NumberInput,
   Stack,
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import type { Mailer } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useState } from "react";
+import { api } from "../../../../../../utils/api";
 
 export const DashboardMailer_DataView = (props: Mailer) => {
   const [editable, setEditable] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const form = useForm({
     initialValues: props,
   });
 
-  const onSubmit = (props: Mailer) => {
-    console.log(props);
+  const updateMutation = api.mailer.updateMailer.useMutation();
+
+  const onSubmit = async (props: Mailer) => {
+    setLoading(true);
+    await updateMutation.mutateAsync(props);
+    setLoading(false);
+    setEditable(true);
+    await router.push("/dashboard/mailer/" + props.name + "/data");
   };
 
   return (
     <>
       <Container>
-        <form onSubmit={form.onSubmit(onSubmit)}>
+        <form onSubmit={form.onSubmit((data) => void onSubmit(data))}>
           <Stack>
             <TextInput
               label="NAME"
@@ -32,6 +44,11 @@ export const DashboardMailer_DataView = (props: Mailer) => {
               label="SMTP_HOST"
               readOnly={!editable}
               {...form.getInputProps("smtpHost")}
+            />
+            <NumberInput
+              label="SMTP_PORT"
+              readOnly={!editable}
+              {...form.getInputProps("smtpPort")}
             />
             <TextInput
               label="SMTP_USER"
@@ -48,10 +65,12 @@ export const DashboardMailer_DataView = (props: Mailer) => {
               readOnly={!editable}
               {...form.getInputProps("smtpName")}
             />
-            <Button onClick={() => setEditable(!editable)}>
+            <Button
+              disabled={editable && loading}
+              onClick={() => setEditable(!editable)}
+            >
               {editable ? "Guardar" : "Editar"}
             </Button>
-
           </Stack>
         </form>
       </Container>
