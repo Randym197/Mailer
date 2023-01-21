@@ -13,6 +13,7 @@ type TDataMail = {
   subject: string; // "Hello ✔", // Subject line
   text: string; // "Hello world?", // plain text body
   html: string; // "<b>Hello world?</b>", // html body
+  token?: string;
 };
 
 type TDataToken = {
@@ -35,21 +36,28 @@ export const verifyToken = (token: string): Promise<null | TDataToken> => {
 };
 
 const handler: NextApiHandler = async (req, res) => {
-  const authorizationHeader = req.headers.authorization;
+  const authorizationHeader = (req.headers.Authorization ||
+    req.headers.authorization) as string;
+  let token = (req.body as TDataMail).token;
 
-  if (!authorizationHeader) {
+  console.log("1", req.headers, authorizationHeader, token);
+
+  if (!authorizationHeader && !token) {
     return res.send({
       error: "You must add Authorization Bearer Token",
     });
   }
 
-  const token = authorizationHeader.split("Bearer ")[1];
+  console.log("2");
+
+  token = token || (authorizationHeader.split("Bearer ")[1] as string);
 
   if (!token) {
     return res.send({
       error: "You Authorization Bearer Header is malformed",
     });
   }
+  console.log("3");
 
   const dataToken = await verifyToken(token);
 
@@ -58,6 +66,7 @@ const handler: NextApiHandler = async (req, res) => {
       error: "You Authorization Bearer Token is malformed",
     });
   }
+  console.log("4");
 
   const { userId, mailerId } = dataToken;
 
@@ -65,6 +74,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   const prisma = new PrismaClient();
   await prisma.$connect();
+  console.log("5");
 
   const mailer = await prisma?.mailer.findFirst({
     where: {
@@ -75,26 +85,31 @@ const handler: NextApiHandler = async (req, res) => {
       originsMailer: true,
     },
   });
+  console.log("6");
 
   if (!mailer || mailerId !== mailer.id) {
     return res.send({
       error: "No existe un mailer con ese nombre asignado a dicho usuario.",
     });
   }
+  console.log("7");
 
   const whitelist = mailer.originsMailer
     .map(({ origin }) => origin)
     .map((o) => o.trim());
 
+  console.log("8");
+
   try {
     await NextCors(req, res, {
-      methods: ["POST"],
+      methods: ["POST", "OPTIONS"],
       origin: (
         origin: string,
         callback: (error: null | Error, result?: boolean) => void
       ) => {
         const result = whitelist.indexOf(origin);
         const allowAll = whitelist.indexOf("*");
+        console.log(result, allowAll);
         if (result !== -1 || allowAll !== -1) {
           callback(null, true);
         } else {
@@ -104,10 +119,13 @@ const handler: NextApiHandler = async (req, res) => {
       optionsSuccessStatus: 200,
     });
   } catch (error) {
+    console.log("9");
+
     return res
       .status(403)
       .json(typeof error === "string" ? JSON.parse(error) : error);
   }
+  console.log("10");
 
   const transport: SMTPTransport.Options = {
     host: mailer.smtpHost,
