@@ -115,9 +115,13 @@ const handler: NextApiHandler = async (req, res) => {
         origin: string,
         callback: (error: null | Error, result?: boolean) => void
       ) => {
-        const result = whitelist.indexOf(origin);
-        console.log("inside", origin, whitelist, result);
+        const originWithoutProtocol = origin.split("//")[1];
+        if (!originWithoutProtocol) {
+          callback(new Error("Not allowed by CORS"));
+        }
+        const result = whitelist.indexOf(originWithoutProtocol as string);
         const allowAll = whitelist.indexOf("*");
+        console.log("inside", originWithoutProtocol, whitelist, result);
         if (result !== -1 || allowAll !== -1) {
           callback(null, true);
         } else {
