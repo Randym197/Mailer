@@ -40,11 +40,11 @@ const handler: NextApiHandler = async (req, res) => {
     req.headers.authorization) as string;
   let token = (req.body as TDataMail).token;
 
-  console.log("1", req.headers, authorizationHeader, token);
+  console.log("1", req.headers, authorizationHeader, token, req.method?.toUpperCase());
 
   if (
-    (!authorizationHeader && !token) ||
-    req.method?.toUpperCase() === "OPTIONS"
+    (!authorizationHeader && !token) &&
+    req.method?.toUpperCase() !== "OPTIONS"
   ) {
     return res.send({
       error: "You must add Authorization Bearer Token",
