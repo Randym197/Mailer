@@ -42,7 +42,10 @@ const handler: NextApiHandler = async (req, res) => {
 
   console.log("1", req.headers, authorizationHeader, token);
 
-  if (!authorizationHeader && !token) {
+  if (
+    (!authorizationHeader && !token) ||
+    req.method?.toUpperCase() === "OPTIONS"
+  ) {
     return res.send({
       error: "You must add Authorization Bearer Token",
     });
