@@ -117,6 +117,7 @@ const handler: NextApiHandler = async (req, res) => {
       optionsSuccessStatus: 200,
     });
   } catch (error) {
+    await prisma.$disconnect();
     return res
       .status(403)
       .json(typeof error === "string" ? JSON.parse(error) : error);
