@@ -48,6 +48,8 @@ const handler: NextApiHandler = async (req, res) => {
     });
   }
 
+  console.log("req.method", req.method);
+
   if (!authorizationHeader && !token && req.method?.toUpperCase() === "POST") {
     return res.send({
       error: "You must add Authorization Bearer Token",
@@ -58,13 +60,18 @@ const handler: NextApiHandler = async (req, res) => {
     token ||
     ((authorizationHeader?.split("Bearer ") || [])[1] as string | null);
 
+  console.log("token0", token);
+
   if (!token) {
     return res.send({
       error: "You Authorization Bearer Header is malformed",
     });
   }
+  console.log("token", token);
 
   const dataToken = await verifyToken(token);
+
+  console.log("dataToken", dataToken);
 
   if (!dataToken) {
     return res.send({
@@ -89,6 +96,8 @@ const handler: NextApiHandler = async (req, res) => {
     },
   });
 
+  console.log("mailer", mailer, mailerId);
+
   if (!mailer || mailerId !== mailer.id) {
     return res.send({
       error: "No existe un mailer con ese nombre asignado a dicho usuario.",
@@ -107,6 +116,7 @@ const handler: NextApiHandler = async (req, res) => {
         callback: (error: null | Error, result?: boolean) => void
       ) => {
         const result = whitelist.indexOf(origin);
+        console.log("inside", origin, whitelist, result);
         const allowAll = whitelist.indexOf("*");
         if (result !== -1 || allowAll !== -1) {
           callback(null, true);
